@@ -564,7 +564,10 @@ const galleryItems = [
 
     // Auto scroll configuration for 10 seconds to complete one cycle
     let lastTimestamp = null;
-    const durationMs = 80000; // 15 seconds
+    // Detect if the user is on iPhone or iPad
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    // Set duration based on device — iPhone gets faster speed
+    const durationMs = isIOS ? 40000 : 80000;  // Adjust 50000 as needed for iPhone
     const resetThreshold = scrollContainer.scrollWidth / 2; // because items are duplicated
     const pixelsPerMs = resetThreshold / durationMs;
 
