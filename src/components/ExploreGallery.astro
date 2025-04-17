@@ -531,6 +531,58 @@ const galleryItems = [
       font-size: 1.8rem;
     }
   }
+
+  //update css for scrolling 18apr
+  .gallery-container {
+  overflow: hidden;
+  position: relative;
+}
+
+.gallery-scroll {
+  display: flex;
+  width: max-content;
+  animation: scrollGallery 60s linear infinite;
+  will-change: transform;
+}
+
+@keyframes scrollGallery {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%); /* shift matches your duplicated items setup */
+  }
+}
+
+.gallery-item {
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.gallery-scroll:hover {
+  animation-play-state: paused;
+}
+
+.gallery-arro {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 2rem;
+}
+
+.arrow-lef {
+  left: 10px;
+}
+
+.arrow-righ {
+  right: 10px;
+}
+
 </style>
 
 
@@ -564,6 +616,7 @@ const galleryItems = [
     const scrollStep = 300; // pixels per arrow click
 
     // Auto scroll configuration for 10 seconds to complete one cycle
+    /*
     let lastTimestamp = null;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
@@ -608,7 +661,7 @@ const galleryItems = [
     } 
 
     requestAnimationFrame(animateScroll);
-
+*/
     // Manual arrow navigation
     leftArrow.addEventListener('click', () => {
       currentTranslateX -= scrollStep;
