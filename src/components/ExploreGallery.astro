@@ -267,6 +267,7 @@ const galleryItems = [
     gap: 1.5rem;
     padding: 0 1rem;
     transition: none;
+    will-change: transform;
   }
 
   .gallery-item {
@@ -564,10 +565,11 @@ const galleryItems = [
 
     // Auto scroll configuration for 10 seconds to complete one cycle
     let lastTimestamp = null;
-    // Detect if the user is on iPhone or iPad
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    // Set duration based on device — iPhone gets faster speed
-    const durationMs = isIOS ? 40000 : 80000;  // Adjust 50000 as needed for iPhone
+
+    // You can adjust this number lower if iPhone still feels slow
+    const durationMs = isIOS ? 35000 : 90000;
+
     const resetThreshold = scrollContainer.scrollWidth / 2; // because items are duplicated
     const pixelsPerMs = resetThreshold / durationMs;
 
@@ -579,23 +581,31 @@ const galleryItems = [
     scrollContainer.addEventListener("mouseleave", () => {
       isPaused = false;
     });
-
+    
+    // Animation loop
     function animateScroll(timestamp) {
-      if (isPaused) {
-        lastTimestamp = timestamp; // reset timestamp to prevent jump on resume
-        requestAnimationFrame(animateScroll);
-        return;
-      }
-      if (!lastTimestamp) lastTimestamp = timestamp;
-      const deltaTime = timestamp - lastTimestamp;
-      currentTranslateX += pixelsPerMs * deltaTime;
-      if (currentTranslateX >= resetThreshold) {
-        currentTranslateX = 0;
-      }
-      scrollContainer.style.transform = `translateX(-${currentTranslateX}px)`;
-      lastTimestamp = timestamp;
-      requestAnimationFrame(animateScroll);
+    if (isPaused) {
+    lastTimestamp = timestamp;
+    requestAnimationFrame(animateScroll);
+    return;
     }
+
+    if (!lastTimestamp) lastTimestamp = timestamp;
+    let deltaTime = timestamp - lastTimestamp;
+
+    // Avoid speed spike after refresh or tab switch
+    if (deltaTime > 100) deltaTime = 16;
+
+    currentTranslateX += pixelsPerMs * deltaTime;
+
+    if (currentTranslateX >= resetThreshold) {
+    currentTranslateX = 0;
+    }
+
+    scrollContainer.style.transform = `translateX(-${currentTranslateX}px)`;
+    lastTimestamp = timestamp;
+    requestAnimationFrame(animateScroll);
+    } 
 
     requestAnimationFrame(animateScroll);
 
