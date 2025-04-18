@@ -550,9 +550,12 @@ const galleryItems = [
     transform: translateX(0);
   }
   100% {
-    transform: translateX(-50%); /* shift matches your duplicated items setup */
+    transform: translateX(-50%);
   }
 }
+
+
+
 
 .gallery-item {
   flex-shrink: 0;
@@ -588,185 +591,153 @@ const galleryItems = [
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    // DOM elements
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const galleryItems = document.querySelectorAll('.gallery-item');
-    const categorySelect = document.querySelector('.category-select');
-    const scrollContainer = document.querySelector('.gallery-scroll');
+  // DOM elements
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  const galleryItems = document.querySelectorAll('.gallery-item');
+  const categorySelect = document.querySelector('.category-select');
+  const scrollContainer = document.querySelector('.gallery-scroll');
 
-    // Lightbox elements
-    const lightbox = document.getElementById("imageLightbox");
-    const lightboxImg = document.getElementById("lightboxImg");
-    const lightboxCaption = document.getElementById("lightboxCaption");
-    const closeButton = document.querySelector(".lightbox-close");
-    const prevButton = document.getElementById("prevImage");
-    const nextButton = document.getElementById("nextImage");
+  const lightbox = document.getElementById("imageLightbox");
+  const lightboxImg = document.getElementById("lightboxImg");
+  const lightboxCaption = document.getElementById("lightboxCaption");
+  const closeButton = document.querySelector(".lightbox-close");
+  const prevButton = document.getElementById("prevImage");
+  const nextButton = document.getElementById("nextImage");
 
-    // Arrow elements for manual navigation
-    const leftArrow = document.querySelector('.arrow-left');
-    const rightArrow = document.querySelector('.arrow-right');
+  const leftArrow = document.querySelector('.arrow-left');
+  const rightArrow = document.querySelector('.arrow-right');
 
-    // State variables
-    let galleryImages = Array.from(document.querySelectorAll(".gallery-item img"));
-    let currentIndex = 0;
-    let activeCategory = 'all';
+  let galleryImages = Array.from(document.querySelectorAll(".gallery-item img"));
+  let currentIndex = 0;
+  let activeCategory = 'all';
 
-    // Tracking the scroll offset for both auto and manual scrolling
-    let currentTranslateX = 0;
-    const scrollStep = 300; // pixels per arrow click
+  let currentTranslateX = 0;
+  const scrollStep = 300;
+  const resetThreshold = scrollContainer.scrollWidth / 2;
 
-    // Auto scroll configuration for 10 seconds to complete one cycle
-    /*
-    let lastTimestamp = null;
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
-    // You can adjust this number lower if iPhone still feels slow
-    const durationMs = isIOS ? 35000 : 90000;
-
-    const resetThreshold = scrollContainer.scrollWidth / 2; // because items are duplicated
-    const pixelsPerMs = resetThreshold / durationMs;
-
-    // Flag to pause scrolling on hover
-    let isPaused = false;
-    scrollContainer.addEventListener("mouseenter", () => {
-      isPaused = true;
-    });
-    scrollContainer.addEventListener("mouseleave", () => {
-      isPaused = false;
-    });
-    
-    // Animation loop
-    function animateScroll(timestamp) {
-    if (isPaused) {
-    lastTimestamp = timestamp;
-    requestAnimationFrame(animateScroll);
-    return;
+  // Manual arrow navigation
+  leftArrow.addEventListener('click', () => {
+    scrollContainer.style.animation = 'none';  // Stop CSS animation
+    currentTranslateX -= scrollStep;
+    if (currentTranslateX < 0) {
+      currentTranslateX = resetThreshold - 1;
     }
-
-    if (!lastTimestamp) lastTimestamp = timestamp;
-    let deltaTime = timestamp - lastTimestamp;
-
-    // Avoid speed spike after refresh or tab switch
-    if (deltaTime > 100) deltaTime = 16;
-
-    currentTranslateX += pixelsPerMs * deltaTime;
-
-    if (currentTranslateX >= resetThreshold) {
-    currentTranslateX = 0;
-    }
-
     scrollContainer.style.transform = `translateX(-${currentTranslateX}px)`;
-    lastTimestamp = timestamp;
-    requestAnimationFrame(animateScroll);
-    } 
 
-    requestAnimationFrame(animateScroll);
-*/
-    // Manual arrow navigation
-    leftArrow.addEventListener('click', () => {
-      currentTranslateX -= scrollStep;
-      if (currentTranslateX < 0) {
-        currentTranslateX = resetThreshold - 1;
-      }
-      scrollContainer.style.transform = `translateX(-${currentTranslateX}px)`;
-    });
+    // Restart CSS animation after manual move (optional)
+    setTimeout(() => {
+      scrollContainer.style.animation = '';
+    }, 500);
+  });
 
-    rightArrow.addEventListener('click', () => {
-      currentTranslateX += scrollStep;
-      if (currentTranslateX >= resetThreshold) {
-        currentTranslateX = 0;
-      }
-      scrollContainer.style.transform = `translateX(-${currentTranslateX}px)`;
-    });
-
-    // Filter gallery function
-    function updateFilterUI(category) {
-      filterButtons.forEach(btn => {
-        btn.setAttribute('data-active', btn.getAttribute('data-category') === category ? 'true' : 'false');
-      });
-      if (categorySelect) {
-        categorySelect.value = category;
-      }
-    }
-    function filterGallery(selectedCategory) {
-      activeCategory = selectedCategory;
-      updateFilterUI(selectedCategory);
-      galleryItems.forEach(item => {
-        item.style.display = (selectedCategory !== 'all' && item.dataset.category !== selectedCategory)
-          ? 'none'
-          : 'block';
-      });
-      // Reset scroll position after filtering
+  rightArrow.addEventListener('click', () => {
+    scrollContainer.style.animation = 'none';  // Stop CSS animation
+    currentTranslateX += scrollStep;
+    if (currentTranslateX >= resetThreshold) {
       currentTranslateX = 0;
-      scrollContainer.style.transform = `translateX(-${currentTranslateX}px)`;
-      updateGalleryImagesArray();
     }
-    function updateGalleryImagesArray() {
-      galleryImages = Array.from(
-        document.querySelectorAll(
-          `.gallery-item${activeCategory !== 'all' ? `[data-category="${activeCategory}"]` : ''} img`
-        )
-      );
-      currentIndex = Math.max(0, Math.min(currentIndex, galleryImages.length - 1));
-    }
+    scrollContainer.style.transform = `translateX(-${currentTranslateX}px)`;
 
-    // Filter button events
-    filterButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        filterGallery(button.getAttribute('data-category'));
-      });
+    // Restart CSS animation after manual move (optional)
+    setTimeout(() => {
+      scrollContainer.style.animation = '';
+    }, 300);
+  });
+
+  // Filter gallery function
+  function updateFilterUI(category) {
+    filterButtons.forEach(btn => {
+      btn.setAttribute('data-active', btn.getAttribute('data-category') === category ? 'true' : 'false');
     });
-    // Category select event for mobile
     if (categorySelect) {
-      categorySelect.addEventListener('change', (e) => {
-        filterGallery(e.target.value);
-      });
+      categorySelect.value = category;
     }
+  }
 
-    // Lightbox functions
-    function updateLightbox() {
-      if (currentIndex >= 0 && currentIndex < galleryImages.length) {
-        const img = galleryImages[currentIndex];
-        lightboxImg.src = img.src;
-        lightboxImg.alt = img.alt;
-        lightboxCaption.textContent = img.alt || "Image";
-      }
-    }
-    function openLightbox(index) {
-      currentIndex = index;
-      updateLightbox();
-      lightbox.classList.add("active");
-      document.body.style.overflow = 'hidden';
-    }
-    function closeLightbox() {
-      lightbox.classList.remove("active");
-      document.body.style.overflow = '';
-    }
-    function navigateLightbox(direction) {
-      currentIndex = direction === 'prev'
-        ? (currentIndex - 1 + galleryImages.length) % galleryImages.length
-        : (currentIndex + 1) % galleryImages.length;
-      updateLightbox();
-    }
-    // Gallery item click events for lightbox
-    document.querySelectorAll('.gallery-item').forEach(item => {
-      item.addEventListener('click', function() {
-        const clickedImg = this.querySelector('img');
-        const imgIndex = galleryImages.findIndex(img => img === clickedImg);
-        if (imgIndex >= 0) openLightbox(imgIndex);
-      });
+  function filterGallery(selectedCategory) {
+    activeCategory = selectedCategory;
+    updateFilterUI(selectedCategory);
+    galleryItems.forEach(item => {
+      item.style.display = (selectedCategory !== 'all' && item.dataset.category !== selectedCategory)
+        ? 'none'
+        : 'block';
     });
-    // Lightbox controls
-    closeButton.addEventListener('click', closeLightbox);
-    prevButton.addEventListener('click', () => navigateLightbox('prev'));
-    nextButton.addEventListener('click', () => navigateLightbox('next'));
-    lightbox.addEventListener('click', function(e) {
-      if (e.target === lightbox) closeLightbox();
-    });
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && lightbox.classList.contains('active')) {
-        closeLightbox();
-      }
+    currentTranslateX = 0;
+    scrollContainer.style.transform = `translateX(-${currentTranslateX}px)`;
+    scrollContainer.style.animation = '';  // Restart CSS animation after filtering
+    updateGalleryImagesArray();
+  }
+
+  function updateGalleryImagesArray() {
+    galleryImages = Array.from(
+      document.querySelectorAll(
+        `.gallery-item${activeCategory !== 'all' ? `[data-category="${activeCategory}"]` : ''} img`
+      )
+    );
+    currentIndex = Math.max(0, Math.min(currentIndex, galleryImages.length - 1));
+  }
+
+  filterButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      filterGallery(button.getAttribute('data-category'));
     });
   });
+
+  if (categorySelect) {
+    categorySelect.addEventListener('change', (e) => {
+      filterGallery(e.target.value);
+    });
+  }
+
+  // Lightbox functions
+  function updateLightbox() {
+    if (currentIndex >= 0 && currentIndex < galleryImages.length) {
+      const img = galleryImages[currentIndex];
+      lightboxImg.src = img.src;
+      lightboxImg.alt = img.alt;
+      lightboxCaption.textContent = img.alt || "Image";
+    }
+  }
+
+  function openLightbox(index) {
+    currentIndex = index;
+    updateLightbox();
+    lightbox.classList.add("active");
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove("active");
+    document.body.style.overflow = '';
+  }
+
+  function navigateLightbox(direction) {
+    currentIndex = direction === 'prev'
+      ? (currentIndex - 1 + galleryImages.length) % galleryImages.length
+      : (currentIndex + 1) % galleryImages.length;
+    updateLightbox();
+  }
+
+  document.querySelectorAll('.gallery-item').forEach(item => {
+    item.addEventListener('click', function() {
+      const clickedImg = this.querySelector('img');
+      const imgIndex = galleryImages.findIndex(img => img === clickedImg);
+      if (imgIndex >= 0) openLightbox(imgIndex);
+    });
+  });
+
+  closeButton.addEventListener('click', closeLightbox);
+  prevButton.addEventListener('click', () => navigateLightbox('prev'));
+  nextButton.addEventListener('click', () => navigateLightbox('next'));
+
+  lightbox.addEventListener('click', function(e) {
+    if (e.target === lightbox) closeLightbox();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+      closeLightbox();
+    }
+  });
+});
 </script>
