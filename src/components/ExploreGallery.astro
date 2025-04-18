@@ -546,46 +546,17 @@ const galleryItems = [
 }
 
 @keyframes scrollGallery {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-
-
-
-.gallery-item {
-  flex-shrink: 0;
-  margin-right: 10px;
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 .gallery-scroll:hover {
   animation-play-state: paused;
 }
-
-.gallery-arro {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 2;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.8);
-  border: none;
-  padding: 0.5rem 1rem;
-  font-size: 2rem;
+.gallery-item {
+  flex-shrink: 0;
+  margin-right: 10px;
 }
-
-.arrow-lef {
-  left: 10px;
-}
-
-.arrow-righ {
-  right: 10px;
-}
-
 </style>
 
 
@@ -655,18 +626,27 @@ const galleryItems = [
   }
 
   function filterGallery(selectedCategory) {
-    activeCategory = selectedCategory;
-    updateFilterUI(selectedCategory);
-    galleryItems.forEach(item => {
-      item.style.display = (selectedCategory !== 'all' && item.dataset.category !== selectedCategory)
-        ? 'none'
-        : 'block';
-    });
-    currentTranslateX = 0;
-    scrollContainer.style.transform = `translateX(-${currentTranslateX}px)`;
-    scrollContainer.style.animation = '';  // Restart CSS animation after filtering
-    updateGalleryImagesArray();
-  }
+  activeCategory = selectedCategory;
+  updateFilterUI(selectedCategory);
+
+  galleryItems.forEach(item => {
+    const shouldShow = (selectedCategory === 'all' || item.dataset.category === selectedCategory);
+    item.style.display = shouldShow ? 'block' : 'none';
+  });
+
+  updateGalleryImagesArray();
+
+  // Adjust scroll speed based on new width
+  const totalWidth = scrollContainer.scrollWidth;
+  const baseWidth = 3000;   // <- adjust to your original full width
+  const baseDuration = 10;  // <- match your CSS animation duration
+
+  const newDuration = (totalWidth / baseWidth) * baseDuration;
+  scrollContainer.style.animationDuration = `${newDuration}s`;
+}
+
+
+
 
   function updateGalleryImagesArray() {
     galleryImages = Array.from(
